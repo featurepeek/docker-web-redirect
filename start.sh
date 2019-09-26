@@ -20,7 +20,17 @@ cat <<EOF > /etc/nginx/conf.d/default.conf
 server {
 	listen 80;
 
-	rewrite ^/(.*)\$ $REDIRECT_TARGET\$1 permanent;
+	if (\$http_x_forwarded_proto = "http") {
+     	return 301 https://\$host\$request_uri;
+ 	}
+
+	location = /health {
+        return 200 'Healthy www redirect';
+	}
+
+	location / {
+		rewrite ^/(.*)\$ $REDIRECT_TARGET\$1 permanent;
+	}
 }
 EOF
 
